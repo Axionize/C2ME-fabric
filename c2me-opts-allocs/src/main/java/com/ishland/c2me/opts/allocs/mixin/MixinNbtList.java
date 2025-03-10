@@ -11,11 +11,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(NbtList.class)
 public abstract class MixinNbtList extends AbstractNbtList<NbtElement> {
@@ -30,22 +32,12 @@ public abstract class MixinNbtList extends AbstractNbtList<NbtElement> {
      * @author ishland
      * @reason copy using fastutil list
      */
-    @Overwrite
-    public NbtList copy() {
+    @Inject(method = "copy", at = @At("HEAD"), cancellable = true)
+    private void copy(CallbackInfoReturnable<NbtList> cir) {
         Iterable<NbtElement> iterable = NbtTypes.byId(this.type).isImmutable() ? this.value : Iterables.transform(this.value, NbtElement::copy);
         List<NbtElement> list = new ObjectArrayList<>(this.value.size());
         iterable.forEach(list::add);
-        return new NbtList(list, this.type);
-    }
-
-    @Override
-    public NbtElement remove(int index) {
-        return this.value.remove(index);
-    }
-
-    @Override
-    public boolean remove(Object o) {
-        return this.value.remove(o);
+        cir.setReturnValue(new NbtList(list, this.type));
     }
 
     @ModifyArg(method = "<init>()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/NbtList;<init>(Ljava/util/List;B)V"), index = 0)
