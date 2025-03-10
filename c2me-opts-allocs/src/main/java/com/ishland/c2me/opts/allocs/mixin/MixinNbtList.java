@@ -38,6 +38,16 @@ public abstract class MixinNbtList extends AbstractNbtList<NbtElement> {
         return new NbtList(list, this.type);
     }
 
+    @Overwrite
+    public NbtElement remove(int index) {
+        return this.value.remove(index);
+    }
+
+    @Overwrite
+    public boolean remove(Object o) {
+        return this.value.remove(o);
+    }
+
     @ModifyArg(method = "<init>()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/NbtList;<init>(Ljava/util/List;B)V"), index = 0)
     private static List<NbtElement> modifyList(List<NbtElement> list) {
         return new ObjectArrayList<>();
