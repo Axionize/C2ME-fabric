@@ -38,12 +38,12 @@ public abstract class MixinNbtList extends AbstractNbtList<NbtElement> {
         return new NbtList(list, this.type);
     }
 
-    @Overwrite
+    @Override
     public NbtElement remove(int index) {
         return this.value.remove(index);
     }
 
-    @Overwrite
+    @Override
     public boolean remove(Object o) {
         return this.value.remove(o);
     }
